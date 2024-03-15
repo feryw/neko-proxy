@@ -55,9 +55,9 @@ neko_checknewver(){
     fi
 }
 
-check_depedency() {
+check_dependencies() {
     opw_version=`cat /etc/os-release | grep VERSION_ID | cut -d\" -f 2`
-    logs "- Check Depedencies : $opw_version"
+    logs "- Check Dependencies : $opw_version"
     if [[ $opw_version == 18.* ]]; then
         req=(curl php7 php7-cgi iptables kmod-tun)
         list=`opkg list-installed | grep -E "curl|php7|iptables|kmod-tun" | awk '{ print $1 }'`
@@ -72,7 +72,7 @@ check_depedency() {
                     stat=1
                 fi
             done
-            if [ $stat = 1 ] ; then
+            if [ "$stat" = "1" ] ; then
                 logs "- Package $req_pkg " 1
                 logs "- Installing $req_pkg "
                 opkg install $req_pkg
@@ -174,7 +174,7 @@ files_check() {
             logs "- Core Detected : $core_version"
         else
             logs "- Downloading Mihomo Binary - $arch"
-            wget -q --no-check-certificate -O ${neko_dir}/core/mihomo.gz ${url_core}/mihomo-linux-${arch}-${core_ver}.gz
+            curl -L -o ${neko_dir}/core/mihomo.gz ${url_core}/mihomo-linux-${arch}-${core_ver}.gz
             gzip -d ${neko_dir}/core/mihomo.gz
         fi
 
@@ -182,14 +182,14 @@ files_check() {
             logs "- GeoIP OK" 1
         else
             logs "- Downloading GeoIP"
-            wget -q --no-check-certificate -O ${geoip_path} ${url_geo}/geoip.metadb
+            curl -L -o ${geoip_path} ${url_geo}/geoip.metadb
         fi
 
         if [ -f ${geosite_path} ]; then
             logs "- GeoSite OK" 1
         else
             logs "- Downloading GeoSite"
-            wget -q --no-check-certificate -O ${neko_dir} ${url_geo}/geosite.db
+            curl -L -o ${neko_dir} ${url_geo}/geosite.db
         fi
     fi
     for file in "$neko_core"/*; do
@@ -211,7 +211,7 @@ neko_start(){
         logs "Neko Not Running" 3
     else
         logs "- Checking Package..."
-        check_depedency
+        check_dependencies
         files_check
         logs "- Checking Package Done."
     fi
